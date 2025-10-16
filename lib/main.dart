@@ -1,7 +1,16 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const App());
+}
+
+class App extends StatelessWidget {
+  const App({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container();
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -109,17 +118,16 @@ class _MyHomePageState extends State<MyHomePage> {
             const Text(
               'Welcome to my shop!',
               style: TextStyle(
-                fontSize: 24, // bigger text
+                fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: Colors.brown, // custom color
+                color: Colors.brown,
               ),
             ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed:
-            _incrementCounter, // still works, even if we don't show counter
+        onPressed: _incrementCounter,
         tooltip: 'Increment',
         child: const Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
