@@ -13,14 +13,20 @@ class App extends StatelessWidget {
       title: 'Sandwich Shop App',
       home: Scaffold(
         appBar: AppBar(title: const Text('Sandwich Counter')),
-        body: Center(
-          child: Container(
-            width: 300, // fixed width
-            height: 200, // fixed height
-            color: Colors.blue, // visible color
-            child: const Center(
-              child: OrderItemDisplay(5, 'Footlong'), // the widget you wrapped
-            ),
+        body: Container(
+          width: double.infinity, // spans the whole page horizontally
+          color: Colors.blue,
+          padding: const EdgeInsets.symmetric(vertical: 32), // vertical spacing
+          child: const Row(
+            mainAxisAlignment:
+                MainAxisAlignment.spaceEvenly, // spread out horizontally
+            crossAxisAlignment:
+                CrossAxisAlignment.start, // align to top of container
+            children: [
+              OrderItemDisplay(3, 'BLT'),
+              OrderItemDisplay(5, 'Club'),
+              OrderItemDisplay(2, 'Veggie'),
+            ],
           ),
         ),
       ),
@@ -29,8 +35,8 @@ class App extends StatelessWidget {
 }
 
 class OrderItemDisplay extends StatelessWidget {
-  final String itemType;
   final int quantity;
+  final String itemType;
 
   const OrderItemDisplay(this.quantity, this.itemType, {super.key});
 
