@@ -28,20 +28,32 @@ class OrderScreen extends StatefulWidget {
 }
 
 class _OrderScreenState extends State<OrderScreen> {
-  int _quantity = 0;
+  int _footlongQuantity = 0;
+  int _sixInchQuantity = 0;
+  String _selectedType = 'Footlong';
   final TextEditingController _noteController = TextEditingController();
   String _note = '';
 
   void _increaseQuantity() {
-    if (_quantity < widget.maxQuantity) {
-      setState(() => _quantity++);
-    }
+    setState(() {
+      if (_selectedType == 'Footlong' &&
+          _footlongQuantity < widget.maxQuantity) {
+        _footlongQuantity++;
+      } else if (_selectedType == 'Six-inch' &&
+          _sixInchQuantity < widget.maxQuantity) {
+        _sixInchQuantity++;
+      }
+    });
   }
 
   void _decreaseQuantity() {
-    if (_quantity > 0) {
-      setState(() => _quantity--);
-    }
+    setState(() {
+      if (_selectedType == 'Footlong' && _footlongQuantity > 0) {
+        _footlongQuantity--;
+      } else if (_selectedType == 'Six-inch' && _sixInchQuantity > 0) {
+        _sixInchQuantity--;
+      }
+    });
   }
 
   @override
@@ -52,8 +64,8 @@ class _OrderScreenState extends State<OrderScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final bool canIncrease = _quantity < widget.maxQuantity;
-    final bool canDecrease = _quantity > 0;
+    final int currentQuantity =
+        _selectedType == 'Footlong' ? _footlongQuantity : _sixInchQuantity;
 
     return Scaffold(
       appBar: AppBar(
@@ -63,39 +75,59 @@ class _OrderScreenState extends State<OrderScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            OrderItemDisplay(
-              _quantity,
-              'Footlong',
+            // Sandwich type selection
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ChoiceChip(
+                  label: const Text('Footlong'),
+                  selected: _selectedType == 'Footlong',
+                  onSelected: (bool selected) {
+                    setState(() {
+                      _selectedType = 'Footlong';
+                    });
+                  },
+                ),
+                const SizedBox(width: 10),
+                ChoiceChip(
+                  label: const Text('Six-inch'),
+                  selected: _selectedType == 'Six-inch',
+                  onSelected: (bool selected) {
+                    setState(() {
+                      _selectedType = 'Six-inch';
+                    });
+                  },
+                ),
+              ],
             ),
-
+            const SizedBox(height: 20),
+            OrderItemDisplay(currentQuantity, _selectedType),
             Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
                     child: StyledButton(
-                      text: 'Add',
-                      icon: Icons.add,
-                      backgroundColor: Colors.green,
-                      onPressed: canIncrease ? _increaseQuantity : null,
+                      text: 'Remove',
+                      icon: Icons.remove,
+                      backgroundColor: Colors.orange,
+                      onPressed: currentQuantity > 0 ? _decreaseQuantity : null,
                     ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
                     child: StyledButton(
-                      text: 'Remove',
-                      icon: Icons.remove,
-                      backgroundColor: Colors.red,
-                      onPressed: canDecrease ? _decreaseQuantity : null,
+                      text: 'Add',
+                      icon: Icons.add,
+                      backgroundColor: Colors.green,
+                      onPressed: currentQuantity < widget.maxQuantity
+                          ? _increaseQuantity
+                          : null,
                     ),
                   ),
                 ],
               ),
             ),
-
-            // Note input
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: TextField(
@@ -111,8 +143,6 @@ class _OrderScreenState extends State<OrderScreen> {
                 },
               ),
             ),
-
-            // Display note
             Padding(
               padding: const EdgeInsets.only(top: 8.0),
               child: Text(
@@ -143,21 +173,6 @@ class StyledButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ButtonStyle style = ElevatedButton.styleFrom(
-      foregroundColor: Colors.white,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-    ).copyWith(
-      backgroundColor: WidgetStateProperty.resolveWith<Color?>(
-        (Set<WidgetState> states) {
-          if (states.contains(WidgetState.disabled)) {
-            return Colors.grey.shade400;
-          }
-          return backgroundColor;
-        },
-      ),
-    );
-
     return ElevatedButton.icon(
       onPressed: onPressed,
       icon: Icon(icon),
@@ -165,7 +180,12 @@ class StyledButton extends StatelessWidget {
         text,
         style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
       ),
-      style: style,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: backgroundColor,
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
     );
   }
 }
@@ -178,6 +198,8 @@ class OrderItemDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text('$quantity $itemType sandwich(es): ${'🥪' * quantity}');
+    return Text(
+      '$quantity $itemType sandwich(es): ${List.filled(quantity, '🥪').join()}',
+    );
   }
 }
