@@ -52,6 +52,9 @@ class _OrderScreenState extends State<OrderScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final bool canIncrease = _quantity < widget.maxQuantity;
+    final bool canDecrease = _quantity > 0;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Sandwich Counter'),
@@ -64,23 +67,35 @@ class _OrderScreenState extends State<OrderScreen> {
               _quantity,
               'Footlong',
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                StyledButton(
-                  text: 'Add',
-                  icon: Icons.add,
-                  backgroundColor: Colors.green,
-                  onPressed: _increaseQuantity,
-                ),
-                StyledButton(
-                  text: 'Remove',
-                  icon: Icons.remove,
-                  backgroundColor: Colors.red,
-                  onPressed: _decreaseQuantity,
-                ),
-              ],
+
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: StyledButton(
+                      text: 'Add',
+                      icon: Icons.add,
+                      backgroundColor: Colors.green,
+                      onPressed: canIncrease ? _increaseQuantity : null,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: StyledButton(
+                      text: 'Remove',
+                      icon: Icons.remove,
+                      backgroundColor: Colors.red,
+                      onPressed: canDecrease ? _decreaseQuantity : null,
+                    ),
+                  ),
+                ],
+              ),
             ),
+
+            // Note input
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: TextField(
@@ -96,6 +111,8 @@ class _OrderScreenState extends State<OrderScreen> {
                 },
               ),
             ),
+
+            // Display note
             Padding(
               padding: const EdgeInsets.only(top: 8.0),
               child: Text(
@@ -110,12 +127,11 @@ class _OrderScreenState extends State<OrderScreen> {
   }
 }
 
-// ✅ Reusable StyledButton widget
 class StyledButton extends StatelessWidget {
   final String text;
   final IconData icon;
   final Color backgroundColor;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
 
   const StyledButton({
     super.key,
@@ -127,6 +143,21 @@ class StyledButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ButtonStyle style = ElevatedButton.styleFrom(
+      foregroundColor: Colors.white,
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+    ).copyWith(
+      backgroundColor: WidgetStateProperty.resolveWith<Color?>(
+        (Set<WidgetState> states) {
+          if (states.contains(WidgetState.disabled)) {
+            return Colors.grey.shade400;
+          }
+          return backgroundColor;
+        },
+      ),
+    );
+
     return ElevatedButton.icon(
       onPressed: onPressed,
       icon: Icon(icon),
@@ -134,12 +165,7 @@ class StyledButton extends StatelessWidget {
         text,
         style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
       ),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: backgroundColor,
-        foregroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      ),
+      style: style,
     );
   }
 }
