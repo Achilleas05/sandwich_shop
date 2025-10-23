@@ -65,16 +65,19 @@ class _OrderScreenState extends State<OrderScreen> {
               'Footlong',
             ),
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                ElevatedButton(
+                StyledButton(
+                  text: 'Add',
+                  icon: Icons.add,
+                  backgroundColor: Colors.green,
                   onPressed: _increaseQuantity,
-                  child: const Text('Add'),
                 ),
-                const SizedBox(width: 10),
-                ElevatedButton(
+                StyledButton(
+                  text: 'Remove',
+                  icon: Icons.remove,
+                  backgroundColor: Colors.red,
                   onPressed: _decreaseQuantity,
-                  child: const Text('Remove'),
                 ),
               ],
             ),
@@ -102,6 +105,40 @@ class _OrderScreenState extends State<OrderScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// ✅ Reusable StyledButton widget
+class StyledButton extends StatelessWidget {
+  final String text;
+  final IconData icon;
+  final Color backgroundColor;
+  final VoidCallback onPressed;
+
+  const StyledButton({
+    super.key,
+    required this.text,
+    required this.icon,
+    required this.backgroundColor,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton.icon(
+      onPressed: onPressed,
+      icon: Icon(icon),
+      label: Text(
+        text,
+        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+      ),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: backgroundColor,
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
     );
   }
