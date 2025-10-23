@@ -16,40 +16,6 @@ class App extends StatelessWidget {
   }
 }
 
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Sandwich Shop App',
-      home: Scaffold(
-        appBar: AppBar(title: const Text('Sandwich Counter')),
-        // The bit that you need to update starts from here
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const OrderItemDisplay(5, 'Footlong'),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ElevatedButton(
-                    onPressed: () => print('Add button pressed!'),
-                    child: const Text('Add'),
-                  ),
-                  const SizedBox(width: 10), // spacing between buttons
-                  ElevatedButton(
-                    onPressed: () => print('Remove button pressed!'),
-                    child: const Text('Remove'),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 class OrderScreen extends StatefulWidget {
   final int maxQuantity;
 
@@ -63,17 +29,26 @@ class OrderScreen extends StatefulWidget {
 
 class _OrderScreenState extends State<OrderScreen> {
   int _quantity = 0;
-  void _increaseQuantity() {
-  if (_quantity < widget.maxQuantity) {
-    setState(() => _quantity++);
-  }
-}
+  final TextEditingController _noteController = TextEditingController();
+  String _note = '';
 
-void _decreaseQuantity() {
-  if (_quantity > 0) {
-    setState(() => _quantity--);
+  void _increaseQuantity() {
+    if (_quantity < widget.maxQuantity) {
+      setState(() => _quantity++);
+    }
   }
-}
+
+  void _decreaseQuantity() {
+    if (_quantity > 0) {
+      setState(() => _quantity--);
+    }
+  }
+
+  @override
+  void dispose() {
+    _noteController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -102,6 +77,28 @@ void _decreaseQuantity() {
                   child: const Text('Remove'),
                 ),
               ],
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextField(
+                controller: _noteController,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Add a note (e.g., "no onion")',
+                ),
+                onChanged: (value) {
+                  setState(() {
+                    _note = value;
+                  });
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Text(
+                _note.isEmpty ? 'No note added' : 'Note: $_note',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
             ),
           ],
         ),
