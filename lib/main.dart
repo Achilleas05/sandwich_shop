@@ -90,7 +90,7 @@ class _OrderScreenState extends State<OrderScreen> {
 
   @override
   Widget build(BuildContext context) {
-    String sandwichType = _isFootlong ? 'footlong' : 'six-inch';
+    String sandwichType = _isFootlong ? 'Footlong' : 'Six-inch';
 
     String noteForDisplay = _notesController.text.isEmpty
         ? 'No notes added.'
@@ -117,12 +117,12 @@ class _OrderScreenState extends State<OrderScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text('six-inch', style: normalText),
+                const Text('Six-inch', style: normalText),
                 Switch(
                   value: _isFootlong,
                   onChanged: _onSandwichTypeChanged,
                 ),
-                const Text('footlong', style: normalText),
+                const Text('Footlong', style: normalText),
               ],
             ),
             const SizedBox(height: 10),
