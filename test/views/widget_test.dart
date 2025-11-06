@@ -68,7 +68,8 @@ void main() {
     // Check the OrderItemDisplay widgets in isolation.
     testWidgets('Displays the correct text for 0 sandwiches',
         (WidgetTester tester) async {
-      const widgetToBeTested = OrderItemDisplay(0, 'Footlong');
+      const widgetToBeTested = OrderItemDisplay(0, 'Footlong',
+          quantity: 0, itemType: '', breadType: BreadType.white, orderNote: '');
       const testApp = MaterialApp(
         home: Scaffold(body: widgetToBeTested),
       );
@@ -79,7 +80,8 @@ void main() {
 
     testWidgets('Displays the correct text and emoji for 3 sandwiches',
         (WidgetTester tester) async {
-      const widgetToBeTested = OrderItemDisplay(3, 'Footlong');
+      const widgetToBeTested = OrderItemDisplay(3, 'Footlong',
+          quantity: 3, itemType: '', breadType: BreadType.white, orderNote: '');
       const testApp = MaterialApp(
         home: Scaffold(body: widgetToBeTested),
       );
