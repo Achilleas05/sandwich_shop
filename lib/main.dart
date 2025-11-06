@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sandwich_shop/views/app_styles.dart';
 import 'package:sandwich_shop/repositories/order_repository.dart';
+import 'package:sandwich_shop/repositories/pricing_repository.dart';
 
 void main() {
   runApp(const App());
@@ -80,11 +81,10 @@ class _OrderScreenState extends State<OrderScreen> {
   List<DropdownMenuEntry<BreadType>> _buildDropdownEntries() {
     List<DropdownMenuEntry<BreadType>> entries = [];
     for (BreadType bread in BreadType.values) {
-      DropdownMenuEntry<BreadType> newEntry = DropdownMenuEntry<BreadType>(
+      entries.add(DropdownMenuEntry<BreadType>(
         value: bread,
         label: bread.name,
-      );
-      entries.add(newEntry);
+      ));
     }
     return entries;
   }
@@ -92,10 +92,14 @@ class _OrderScreenState extends State<OrderScreen> {
   @override
   Widget build(BuildContext context) {
     String sandwichType = _isFootlong ? 'Footlong' : 'Six-inch';
-
     String noteForDisplay = _notesController.text.isEmpty
         ? 'No notes added.'
         : _notesController.text;
+
+    final pricingRepository = PricingRepository(
+      quantity: _orderRepository.quantity,
+      isFootlong: _isFootlong,
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -113,6 +117,7 @@ class _OrderScreenState extends State<OrderScreen> {
               itemType: sandwichType,
               breadType: _selectedBreadType,
               orderNote: noteForDisplay,
+              totalPrice: pricingRepository.formattedPrice, // Pass total price
             ),
             const SizedBox(height: 20),
             Row(
@@ -190,6 +195,7 @@ class OrderItemDisplay extends StatelessWidget {
   final String itemType;
   final BreadType breadType;
   final String orderNote;
+  final String totalPrice;
 
   const OrderItemDisplay({
     super.key,
@@ -197,18 +203,23 @@ class OrderItemDisplay extends StatelessWidget {
     required this.itemType,
     required this.breadType,
     required this.orderNote,
+    required this.totalPrice,
   });
 
   @override
   Widget build(BuildContext context) {
     String displayText =
         '$quantity ${breadType.name} $itemType sandwich(es): ${'🥪' * quantity}';
-
     return Column(
       children: [
         Text(
           displayText,
           style: normalText,
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Total: $totalPrice',
+          style: normalText.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8),
         Text(
@@ -241,7 +252,6 @@ class StyledButton extends StatelessWidget {
       foregroundColor: Colors.white,
       textStyle: normalText,
     );
-
     return ElevatedButton(
       onPressed: onPressed,
       style: myButtonStyle,

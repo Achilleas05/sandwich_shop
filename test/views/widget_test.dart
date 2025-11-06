@@ -118,6 +118,7 @@ void main() {
         itemType: 'Footlong',
         breadType: BreadType.white,
         orderNote: 'No notes added.',
+        totalPrice: '',
       );
       const testApp = MaterialApp(
         home: Scaffold(body: widgetToBeTested),
@@ -134,6 +135,7 @@ void main() {
         itemType: 'Footlong',
         breadType: BreadType.white,
         orderNote: 'No notes added.',
+        totalPrice: '',
       );
       const testApp = MaterialApp(
         home: Scaffold(body: widgetToBeTested),
@@ -151,6 +153,7 @@ void main() {
         itemType: 'Six-inch',
         breadType: BreadType.wheat,
         orderNote: 'No pickles',
+        totalPrice: '',
       );
       const testApp = MaterialApp(
         home: Scaffold(body: widgetToBeTested),
@@ -167,6 +170,7 @@ void main() {
         itemType: 'Footlong',
         breadType: BreadType.wholemeal,
         orderNote: 'Lots of lettuce',
+        totalPrice: '',
       );
       const testApp = MaterialApp(
         home: Scaffold(body: widgetToBeTested),
