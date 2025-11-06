@@ -63,16 +63,24 @@ void main() {
       await tester.pumpWidget(const App());
       // At start, expect "Footlong"
       expect(find.textContaining('Footlong sandwich'), findsOneWidget);
-      // Tap the Switch (should flip to Six-inch)
-      await tester.tap(find.byType(Switch));
+      // Tap the sandwich size Switch (by its unique key)
+      await tester.tap(find.byKey(const Key('size_switch')));
       await tester.pumpAndSettle();
       // After toggle, expect "Six-inch"
       expect(find.textContaining('Six-inch sandwich'), findsOneWidget);
       // Tap again to revert
-      await tester.tap(find.byType(Switch));
+      await tester.tap(find.byKey(const Key('size_switch')));
       await tester.pumpAndSettle();
       // Should go back to "Footlong"
       expect(find.textContaining('Footlong sandwich'), findsOneWidget);
+    });
+
+    testWidgets('toggles toasted with Switch', (WidgetTester tester) async {
+      await tester.pumpWidget(const App());
+      // At start, _isToasted should be false. Tap toasted switch to toggle
+      await tester.tap(find.byKey(const Key('toasted_switch')));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('toasted_switch')), findsOneWidget);
     });
 
     testWidgets('updates note with TextField', (WidgetTester tester) async {
