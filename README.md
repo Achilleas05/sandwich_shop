@@ -122,8 +122,4 @@ sandwich_shop/
 - **Email**: `achilleasachilleos0@gmail.com`
 - **Support**: For questions and community help, please use the dedicated Discord channel.
 
-## License
-
-This project is licensed under the MIT License. See the `LICENSE` file for details.
-
 ---
