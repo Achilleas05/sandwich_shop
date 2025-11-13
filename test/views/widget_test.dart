@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sandwich_shop/main.dart';
+import 'package:sandwich_shop/models/bread_type.dart'; // Ensure this file defines BreadType
 
 void main() {
   group('App', () {
