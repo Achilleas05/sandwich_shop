@@ -44,13 +44,11 @@ void main() {
     testWidgets('does not decrement below zero', (WidgetTester tester) async {
       await tester.pumpWidget(const App());
       expect(find.text('1'), findsOneWidget);
-      // Tapping remove when quantity is 1 should result in 0
       await tester.ensureVisible(find.byIcon(Icons.remove));
       await tester.tap(find.byIcon(Icons.remove));
       await tester.pumpAndSettle();
       expect(find.text('0'), findsOneWidget);
 
-      // Tapping remove again when quantity is 0 should do nothing
       await tester.tap(find.byIcon(Icons.remove));
       await tester.pumpAndSettle();
       expect(find.text('0'), findsOneWidget);
@@ -71,7 +69,6 @@ void main() {
     testWidgets('changes bread type with DropdownMenu',
         (WidgetTester tester) async {
       await tester.pumpWidget(const App());
-      // Use a specific finder for the bread dropdown to avoid ambiguity
       final breadDropdownFinder = find.byType(DropdownMenu<BreadType>);
 
       await tester.ensureVisible(breadDropdownFinder);

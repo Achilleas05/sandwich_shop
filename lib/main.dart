@@ -3,13 +3,6 @@ import 'package:sandwich_shop/views/app_styles.dart';
 import 'package:sandwich_shop/models/sandwich.dart';
 import 'package:sandwich_shop/models/cart.dart';
 
-class PricingRepository {
-  double calculatePrice({required int quantity, required bool isFootlong}) {
-    final double basePrice = isFootlong ? 8.0 : 5.0;
-    return basePrice * quantity;
-  }
-}
-
 void main() {
   runApp(const App());
 }
@@ -72,55 +65,36 @@ class _OrderScreenState extends State<OrderScreen> {
         _cart.add(sandwich, _quantity);
       });
 
-      String sizeText;
-      if (_isFootlong) {
-        sizeText = 'footlong';
-      } else {
-        sizeText = 'six-inch';
-      }
+      final sizeText = _isFootlong ? 'footlong' : 'six-inch';
       String confirmationMessage =
-          'Added $_quantity $sizeText ${sandwich.name} sandwich(es) on ${_selectedBreadType.name} bread to cart';
+          'Added $_quantity $sizeText ${sandwich.name} sandwich(es) on ${_selectedBreadType.name.toLowerCase()} bread to cart';
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(confirmationMessage),
-          duration: const Duration(seconds: 2),
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(confirmationMessage),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
     }
   }
 
-  VoidCallback? _getAddToCartCallback() {
-    if (_quantity > 0) {
-      return _addToCart;
-    }
-    return null;
-  }
+  VoidCallback? _getAddToCartCallback() => _quantity > 0 ? _addToCart : null;
 
   List<DropdownMenuEntry<SandwichType>> _buildSandwichTypeEntries() {
-    List<DropdownMenuEntry<SandwichType>> entries = [];
-    for (SandwichType type in SandwichType.values) {
-      Sandwich sandwich =
-          Sandwich(type: type, isFootlong: true, breadType: BreadType.white);
-      DropdownMenuEntry<SandwichType> entry = DropdownMenuEntry<SandwichType>(
-        value: type,
-        label: sandwich.name,
-      );
-      entries.add(entry);
-    }
-    return entries;
+    return SandwichType.values.map((type) {
+      final sandwich =
+          Sandwich(type: type, isFootlong: false, breadType: BreadType.white);
+      return DropdownMenuEntry<SandwichType>(value: type, label: sandwich.name);
+    }).toList();
   }
 
   List<DropdownMenuEntry<BreadType>> _buildBreadTypeEntries() {
-    List<DropdownMenuEntry<BreadType>> entries = [];
-    for (BreadType bread in BreadType.values) {
-      DropdownMenuEntry<BreadType> entry = DropdownMenuEntry<BreadType>(
-        value: bread,
-        label: bread.name,
-      );
-      entries.add(entry);
-    }
-    return entries;
+    return BreadType.values
+        .map((bread) =>
+            DropdownMenuEntry<BreadType>(value: bread, label: bread.name))
+        .toList();
   }
 
   String _getCurrentImagePath() {
@@ -168,21 +142,11 @@ class _OrderScreenState extends State<OrderScreen> {
     }
   }
 
-  VoidCallback? _getDecreaseCallback() {
-    if (_quantity > 0) {
-      return _decreaseQuantity;
-    }
-    return null;
-  }
+  VoidCallback? _getDecreaseCallback() =>
+      _quantity > 0 ? _decreaseQuantity : null;
 
   @override
   Widget build(BuildContext context) {
-    final sandwichPrice = PricingRepository().calculatePrice(
-      quantity: _quantity,
-      isFootlong: _isFootlong,
-    );
-    final cartTotal = _cart.totalPrice;
-
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -257,17 +221,6 @@ class _OrderScreenState extends State<OrderScreen> {
                 ],
               ),
               const SizedBox(height: 20),
-              Text(
-                'This sandwich: €${sandwichPrice.toStringAsFixed(2)}',
-                style: heading2,
-                textAlign: TextAlign.center,
-              ),
-              Text(
-                'Cart total: €${cartTotal.toStringAsFixed(2)}',
-                style: heading2,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 20),
               StyledButton(
                 onPressed: _getAddToCartCallback(),
                 icon: Icons.add_shopping_cart,
@@ -275,6 +228,24 @@ class _OrderScreenState extends State<OrderScreen> {
                 backgroundColor: Colors.green,
               ),
               const SizedBox(height: 20),
+            ],
+          ),
+        ),
+      ),
+      bottomNavigationBar: BottomAppBar(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Total Items: ${_cart.totalItems}',
+                style: heading2,
+              ),
+              Text(
+                'Total Price: \$${_cart.totalPrice.toStringAsFixed(2)}',
+                style: heading2,
+              ),
             ],
           ),
         ),
