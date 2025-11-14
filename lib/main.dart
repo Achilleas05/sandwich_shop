@@ -3,6 +3,13 @@ import 'package:sandwich_shop/views/app_styles.dart';
 import 'package:sandwich_shop/models/sandwich.dart';
 import 'package:sandwich_shop/models/cart.dart';
 
+class PricingRepository {
+  double calculatePrice({required int quantity, required bool isFootlong}) {
+    final double basePrice = isFootlong ? 8.0 : 5.0;
+    return basePrice * quantity;
+  }
+}
+
 void main() {
   runApp(const App());
 }
@@ -74,7 +81,12 @@ class _OrderScreenState extends State<OrderScreen> {
       String confirmationMessage =
           'Added $_quantity $sizeText ${sandwich.name} sandwich(es) on ${_selectedBreadType.name} bread to cart';
 
-      debugPrint(confirmationMessage);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(confirmationMessage),
+          duration: const Duration(seconds: 2),
+        ),
+      );
     }
   }
 
@@ -165,6 +177,12 @@ class _OrderScreenState extends State<OrderScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final sandwichPrice = PricingRepository().calculatePrice(
+      quantity: _quantity,
+      isFootlong: _isFootlong,
+    );
+    final cartTotal = _cart.totalPrice;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -237,6 +255,17 @@ class _OrderScreenState extends State<OrderScreen> {
                     icon: const Icon(Icons.add),
                   ),
                 ],
+              ),
+              const SizedBox(height: 20),
+              Text(
+                'This sandwich: €${sandwichPrice.toStringAsFixed(2)}',
+                style: heading2,
+                textAlign: TextAlign.center,
+              ),
+              Text(
+                'Cart total: €${cartTotal.toStringAsFixed(2)}',
+                style: heading2,
+                textAlign: TextAlign.center,
               ),
               const SizedBox(height: 20),
               StyledButton(
