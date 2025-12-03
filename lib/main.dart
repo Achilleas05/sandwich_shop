@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:sandwich_shop/views/app_styles.dart';
 import 'package:sandwich_shop/models/sandwich.dart';
 import 'package:sandwich_shop/models/cart.dart';
+import 'package:sandwich_shop/views/cart_screen.dart';
+import 'package:sandwich_shop/views/styled_button.dart';
+import 'package:sandwich_shop/views/about_screen.dart';
+import 'package:sandwich_shop/views/profile_screen.dart';
+export 'package:sandwich_shop/views/styled_button.dart';
 
 void main() {
   runApp(const App());
@@ -12,9 +17,13 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       title: 'Sandwich Shop App',
-      home: OrderScreen(maxQuantity: 5),
+      home: const OrderScreen(maxQuantity: 5),
+      routes: {
+        '/about': (context) => const AboutScreen(),
+        '/profile': (context) => const ProfileScreen(),
+      },
     );
   }
 }
@@ -62,39 +71,60 @@ class _OrderScreenState extends State<OrderScreen> {
       );
 
       setState(() {
-        _cart.add(sandwich, _quantity);
+        _cart.addSandwich(sandwich, quantity: _quantity);
       });
 
-      final sizeText = _isFootlong ? 'footlong' : 'six-inch';
-      String confirmationMessage =
-          'Added $_quantity $sizeText ${sandwich.name} sandwich(es) on ${_selectedBreadType.name.toLowerCase()} bread to cart';
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(confirmationMessage),
-            duration: const Duration(seconds: 2),
-          ),
-        );
+      String sizeText;
+      if (_isFootlong) {
+        sizeText = 'footlong';
+      } else {
+        sizeText = 'six-inch';
       }
+      String confirmationMessage =
+          'Added $_quantity $sizeText ${sandwich.name} sandwich(es) on ${_selectedBreadType.name} bread to cart';
+
+      // Show confirmation message in UI
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(confirmationMessage),
+          duration: const Duration(seconds: 2),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
     }
   }
 
-  VoidCallback? _getAddToCartCallback() => _quantity > 0 ? _addToCart : null;
+  VoidCallback? _getAddToCartCallback() {
+    if (_quantity > 0) {
+      return _addToCart;
+    }
+    return null;
+  }
 
   List<DropdownMenuEntry<SandwichType>> _buildSandwichTypeEntries() {
-    return SandwichType.values.map((type) {
-      final sandwich =
-          Sandwich(type: type, isFootlong: false, breadType: BreadType.white);
-      return DropdownMenuEntry<SandwichType>(value: type, label: sandwich.name);
-    }).toList();
+    List<DropdownMenuEntry<SandwichType>> entries = [];
+    for (SandwichType type in SandwichType.values) {
+      Sandwich sandwich =
+          Sandwich(type: type, isFootlong: true, breadType: BreadType.white);
+      DropdownMenuEntry<SandwichType> entry = DropdownMenuEntry<SandwichType>(
+        value: type,
+        label: sandwich.name,
+      );
+      entries.add(entry);
+    }
+    return entries;
   }
 
   List<DropdownMenuEntry<BreadType>> _buildBreadTypeEntries() {
-    return BreadType.values
-        .map((bread) =>
-            DropdownMenuEntry<BreadType>(value: bread, label: bread.name))
-        .toList();
+    List<DropdownMenuEntry<BreadType>> entries = [];
+    for (BreadType bread in BreadType.values) {
+      DropdownMenuEntry<BreadType> entry = DropdownMenuEntry<BreadType>(
+        value: bread,
+        label: bread.name,
+      );
+      entries.add(entry);
+    }
+    return entries;
   }
 
   String _getCurrentImagePath() {
@@ -142,13 +172,21 @@ class _OrderScreenState extends State<OrderScreen> {
     }
   }
 
-  VoidCallback? _getDecreaseCallback() =>
-      _quantity > 0 ? _decreaseQuantity : null;
+  VoidCallback? _getDecreaseCallback() {
+    if (_quantity > 0) {
+      return _decreaseQuantity;
+    }
+    return null;
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: SizedBox(
+          height: 100,
+          child: Image.asset('assets/images/logo.png'),
+        ),
         title: const Text(
           'Sandwich Counter',
           style: heading1,
@@ -227,100 +265,75 @@ class _OrderScreenState extends State<OrderScreen> {
                 label: 'Add to Cart',
                 backgroundColor: Colors.green,
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 30),
+              // Cart Summary
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey[400]!),
+                ),
+                child: Column(
+                  children: [
+                    const Text(
+                      'Cart Summary',
+                      style: heading2,
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text('Items in cart:', style: normalText),
+                        Text(
+                          '${_cart.totalQuantity}',
+                          style: heading2,
+                          key: const Key('cart_item_count'),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text('Total Price:', style: normalText),
+                        Text(
+                          '£${_cart.totalPrice.toStringAsFixed(2)}',
+                          style: heading2,
+                          key: const Key('cart_total_price'),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: ElevatedButton(
+                        key: const Key('view_cart_button'),
+                        onPressed: () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (_) => CartScreen(cart: _cart)));
+                        },
+                        child: const Text('View Cart'),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+                    const SizedBox(height: 20),
+                    Center(
+                      child: TextButton(
+                        key: const Key('profile_button'),
+                        onPressed: () => Navigator.pushNamed(context, '/profile'),
+                        child: const Text('Profile'),
+                      ),
+                    ),
             ],
           ),
         ),
       ),
-      bottomNavigationBar: BottomAppBar(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Total Items: ${_cart.totalItems}',
-                style: heading2,
-              ),
-              Text(
-                'Total Price: \$${_cart.totalPrice.toStringAsFixed(2)}',
-                style: heading2,
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }
 
-class StyledButton extends StatelessWidget {
-  final VoidCallback? onPressed;
-  final IconData icon;
-  final String label;
-  final Color backgroundColor;
-
-  const StyledButton({
-    super.key,
-    required this.onPressed,
-    required this.icon,
-    required this.label,
-    required this.backgroundColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    ButtonStyle myButtonStyle = ElevatedButton.styleFrom(
-      backgroundColor: backgroundColor,
-      foregroundColor: Colors.white,
-      textStyle: normalText,
-    );
-
-    return ElevatedButton(
-      onPressed: onPressed,
-      style: myButtonStyle,
-      child: Row(
-        children: [
-          Icon(icon),
-          const SizedBox(width: 8),
-          Text(label),
-        ],
-      ),
-    );
-  }
-}
-
-class OrderItemDisplay extends StatelessWidget {
-  final int quantity;
-  final String itemType;
-  final BreadType breadType;
-  final String orderNote;
-
-  const OrderItemDisplay({
-    super.key,
-    required this.quantity,
-    required this.itemType,
-    required this.breadType,
-    required this.orderNote,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    String displayText =
-        '$quantity ${breadType.name} $itemType sandwich(es): ${'🥪' * quantity}';
-
-    return Column(
-      children: [
-        Text(
-          displayText,
-          style: normalText,
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'Note: $orderNote',
-          style: normalText,
-        ),
-      ],
-    );
-  }
-}
+// StyledButton moved to lib/views/styled_button.dart
