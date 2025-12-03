@@ -1,6 +1,6 @@
 name: sandwich_shop
 description: "A Flutter project for a sandwich shop."
-publish_to: none
+publish_to: "none"
 
 version: 1.0.0+1
 
@@ -15,7 +15,6 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
   flutter_lints: ^2.0.0
 
 flutter:
