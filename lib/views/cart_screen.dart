@@ -4,7 +4,7 @@ import 'package:sandwich_shop/views/app_styles.dart';
 import 'package:sandwich_shop/models/cart.dart';
 import 'package:sandwich_shop/models/sandwich.dart';
 import 'package:sandwich_shop/repositories/pricing_repository.dart';
-import 'package:sandwich_shop/views/checkout_screen.dart';
+import 'package:sandwich_shop/views/common_widgets.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
@@ -29,18 +29,15 @@ class _CartScreenState extends State<CartScreen> {
       return;
     }
 
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const CheckoutScreen(),
-      ),
-    );
+    final result = await Navigator.pushNamed(context, '/checkout');
 
     if (result != null && mounted) {
       cart.clear();
 
-      final String orderId = result['orderId'] as String;
-      final String estimatedTime = result['estimatedTime'] as String;
+      final Map<String, dynamic> orderConfirmation =
+          result as Map<String, dynamic>;
+      final String orderId = orderConfirmation['orderId'] as String;
+      final String estimatedTime = orderConfirmation['estimatedTime'] as String;
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -111,36 +108,8 @@ class _CartScreenState extends State<CartScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: SizedBox(
-            height: 100,
-            child: Image.asset('assets/images/logo.png'),
-          ),
-        ),
-        title: Text(
-          'Cart View',
-          style: heading1,
-        ),
-        actions: [
-          Consumer<Cart>(
-            builder: (context, cart, child) {
-              return Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.shopping_cart),
-                    const SizedBox(width: 4),
-                    Text('${cart.countOfItems}'),
-                  ],
-                ),
-              );
-            },
-          ),
-        ],
-      ),
+      appBar: const MainAppBar(title: 'Cart View'),
+      drawer: buildAppDrawer(context),
       body: Center(
         child: SingleChildScrollView(
           child: Consumer<Cart>(
@@ -216,54 +185,11 @@ class _CartScreenState extends State<CartScreen> {
                     },
                   ),
                   const SizedBox(height: 20),
-                  StyledButton(
-                    onPressed: () => Navigator.pop(context),
-                    icon: Icons.arrow_back,
-                    label: 'Back to Order',
-                    backgroundColor: Colors.grey,
-                  ),
-                  const SizedBox(height: 20),
                 ],
               );
             },
           ),
         ),
-      ),
-    );
-  }
-}
-
-class StyledButton extends StatelessWidget {
-  final VoidCallback? onPressed;
-  final IconData icon;
-  final String label;
-  final Color backgroundColor;
-
-  const StyledButton({
-    super.key,
-    required this.onPressed,
-    required this.icon,
-    required this.label,
-    required this.backgroundColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    ButtonStyle myButtonStyle = ElevatedButton.styleFrom(
-      backgroundColor: backgroundColor,
-      foregroundColor: Colors.white,
-      textStyle: normalText,
-    );
-
-    return ElevatedButton(
-      onPressed: onPressed,
-      style: myButtonStyle,
-      child: Row(
-        children: [
-          Icon(icon),
-          const SizedBox(width: 8),
-          Text(label),
-        ],
       ),
     );
   }
