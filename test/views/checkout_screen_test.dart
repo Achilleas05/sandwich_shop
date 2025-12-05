@@ -219,8 +219,8 @@ void main() {
           (widget) =>
               widget is Row &&
               widget.mainAxisAlignment == MainAxisAlignment.spaceBetween &&
-              widget.children.any((child) =>
-                  child is Text && (child as Text).data!.contains('x ')),
+              widget.children.any(
+                  (child) => child is Text && (child).data!.contains('x ')),
         ),
       );
       expect(itemRows, findsOneWidget);
