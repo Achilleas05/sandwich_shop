@@ -61,3 +61,20 @@ The Cart Modification feature enables users of the Sandwich Shop Flutter app to 
 4. Ensure the total price and UI update immediately after any change.
 5. Provide user feedback (snackbar) for remove and update actions.
 6. Handle empty cart states with a clear message.
+
+## Navigation Drawer Implementation
+
+### Requirements:
+
+- [ ] Add a Drawer menu accessible from all screens in the app
+- [ ] The Drawer should contain navigation options for:
+  - [ ] Order Screen (Home)
+  - [ ] Cart Screen
+  - [ ] Profile Screen
+  - [ ] Settings Screen
+- [ ] The Drawer should be accessible via a hamburger menu icon in the AppBar
+- [ ] Implement responsive navigation:
+  - [ ] On large screens (tablets/desktop): Navigation items should appear in the AppBar
+  - [ ] On small screens (mobile): Navigation items should be in the Drawer
+- [ ] Reduce code redundancy by extracting common navigation components
+- [ ] Update all widget tests to cover the new navigation functionality
