@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sandwich_shop/views/app_styles.dart';
-import 'package:sandwich_shop/views/cart_screen.dart';
 import 'package:sandwich_shop/models/cart.dart';
 import 'package:sandwich_shop/models/sandwich.dart';
-import 'package:sandwich_shop/views/profile_screen.dart';
-import 'package:sandwich_shop/views/settings_screen.dart';
+import 'package:sandwich_shop/views/common_widgets.dart';
 
 class OrderScreen extends StatefulWidget {
   final int maxQuantity;
@@ -19,56 +17,10 @@ class OrderScreen extends StatefulWidget {
 }
 
 class _OrderScreenState extends State<OrderScreen> {
-  final TextEditingController _notesController = TextEditingController();
-
   SandwichType _selectedSandwichType = SandwichType.veggieDelight;
   bool _isFootlong = true;
   BreadType _selectedBreadType = BreadType.white;
   int _quantity = 1;
-
-  @override
-  void initState() {
-    super.initState();
-    _notesController.addListener(() {
-      setState(() {});
-    });
-  }
-
-  @override
-  void dispose() {
-    _notesController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _navigateToProfile() async {
-    final Map<String, String>? result =
-        await Navigator.push<Map<String, String>>(
-      context,
-      MaterialPageRoute<Map<String, String>>(
-        builder: (BuildContext context) => const ProfileScreen(),
-      ),
-    );
-
-    final bool hasResult = result != null;
-    final bool widgetStillMounted = mounted;
-
-    if (hasResult && widgetStillMounted) {
-      _showWelcomeMessage(result);
-    }
-  }
-
-  void _showWelcomeMessage(Map<String, String> profileData) {
-    final String name = profileData['name']!;
-    final String location = profileData['location']!;
-    final String welcomeMessage = 'Welcome, $name! Ordering from $location';
-
-    final SnackBar welcomeSnackBar = SnackBar(
-      content: Text(welcomeMessage),
-      duration: const Duration(seconds: 3),
-    );
-
-    ScaffoldMessenger.of(context).showSnackBar(welcomeSnackBar);
-  }
 
   void _addToCart() {
     if (_quantity > 0) {
@@ -104,24 +56,6 @@ class _OrderScreenState extends State<OrderScreen> {
       return _addToCart;
     }
     return null;
-  }
-
-  void _navigateToCartView() {
-    Navigator.push(
-      context,
-      MaterialPageRoute<void>(
-        builder: (BuildContext context) => const CartScreen(),
-      ),
-    );
-  }
-
-  void _navigateToSettings() {
-    Navigator.push(
-      context,
-      MaterialPageRoute<void>(
-        builder: (BuildContext context) => const SettingsScreen(),
-      ),
-    );
   }
 
   List<DropdownMenuEntry<SandwichType>> _buildSandwichTypeEntries() {
@@ -162,36 +96,8 @@ class _OrderScreenState extends State<OrderScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: SizedBox(
-            height: 100,
-            child: Image.asset('assets/images/logo.png'),
-          ),
-        ),
-        title: Text(
-          'Sandwich Counter',
-          style: heading1,
-        ),
-        actions: [
-          Consumer<Cart>(
-            builder: (context, cart, child) {
-              return Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.shopping_cart),
-                    const SizedBox(width: 4),
-                    Text('${cart.countOfItems}'),
-                  ],
-                ),
-              );
-            },
-          ),
-        ],
-      ),
+      appBar: const MainAppBar(title: 'Sandwich Counter'),
+      drawer: buildAppDrawer(context),
       body: Center(
         child: SingleChildScrollView(
           child: Column(
@@ -276,27 +182,6 @@ class _OrderScreenState extends State<OrderScreen> {
                 backgroundColor: Colors.green,
               ),
               const SizedBox(height: 20),
-              StyledButton(
-                onPressed: _navigateToCartView,
-                icon: Icons.shopping_cart,
-                label: 'View Cart',
-                backgroundColor: Colors.blue,
-              ),
-              const SizedBox(height: 20),
-              StyledButton(
-                onPressed: _navigateToProfile,
-                icon: Icons.person,
-                label: 'Profile',
-                backgroundColor: Colors.purple,
-              ),
-              const SizedBox(height: 20),
-              StyledButton(
-                onPressed: _navigateToSettings,
-                icon: Icons.settings,
-                label: 'Settings',
-                backgroundColor: Colors.grey,
-              ),
-              const SizedBox(height: 20),
               Consumer<Cart>(
                 builder: (context, cart, child) {
                   return Text(
@@ -310,42 +195,6 @@ class _OrderScreenState extends State<OrderScreen> {
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class StyledButton extends StatelessWidget {
-  final VoidCallback? onPressed;
-  final IconData icon;
-  final String label;
-  final Color backgroundColor;
-
-  const StyledButton({
-    super.key,
-    required this.onPressed,
-    required this.icon,
-    required this.label,
-    required this.backgroundColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    ButtonStyle myButtonStyle = ElevatedButton.styleFrom(
-      backgroundColor: backgroundColor,
-      foregroundColor: Colors.white,
-      textStyle: normalText,
-    );
-
-    return ElevatedButton(
-      onPressed: onPressed,
-      style: myButtonStyle,
-      child: Row(
-        children: [
-          Icon(icon),
-          const SizedBox(width: 8),
-          Text(label),
-        ],
       ),
     );
   }
