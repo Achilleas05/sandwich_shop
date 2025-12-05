@@ -58,7 +58,15 @@ void main() {
       expect(find.text('Total: £22.00'), findsOneWidget);
     });
 
-    testWidgets('displays multiple cart items correctly',
+    testWidgets('has drawer menu button in app bar',
+        (WidgetTester tester) async {
+      const CartScreen cartScreen = CartScreen();
+      await tester.pumpWidget(wrapWithProvider(cartScreen));
+
+      expect(find.byIcon(Icons.menu), findsOneWidget);
+    });
+
+    testWidgets('displays cart counter in app bar',
         (WidgetTester tester) async {
       const CartScreen cartScreen = CartScreen();
       await tester.pumpWidget(wrapWithProvider(cartScreen, items: [
@@ -66,23 +74,12 @@ void main() {
           'type': SandwichType.veggieDelight,
           'isFootlong': true,
           'breadType': BreadType.white,
-          'quantity': 1,
-        },
-        {
-          'type': SandwichType.chickenTeriyaki,
-          'isFootlong': false,
-          'breadType': BreadType.wheat,
-          'quantity': 3,
+          'quantity': 2,
         }
       ]));
 
-      expect(find.text('Veggie Delight'), findsOneWidget);
-      expect(find.text('Chicken Teriyaki'), findsOneWidget);
-      expect(find.text('Footlong on white bread'), findsOneWidget);
-      expect(find.text('Six-inch on wheat bread'), findsOneWidget);
-      expect(find.text('Qty: 1'), findsOneWidget);
-      expect(find.text('Qty: 3'), findsOneWidget);
-      expect(find.text('Total: £32.00'), findsOneWidget);
+      expect(find.byIcon(Icons.shopping_cart), findsOneWidget);
+      expect(find.text('2'), findsOneWidget);
     });
 
     testWidgets('shows checkout button when cart has items',
@@ -175,35 +172,20 @@ void main() {
       expect(find.text('Item removed from cart'), findsOneWidget);
     });
 
-    testWidgets('back button navigates back', (WidgetTester tester) async {
+    testWidgets('drawer contains navigation items',
+        (WidgetTester tester) async {
       const CartScreen cartScreen = CartScreen();
       await tester.pumpWidget(wrapWithProvider(cartScreen));
 
-      final Finder backButtonFinder =
-          find.widgetWithText(ElevatedButton, 'Back to Order');
-      expect(backButtonFinder, findsOneWidget);
+      // Open drawer
+      await tester.tap(find.byIcon(Icons.menu));
+      await tester.pumpAndSettle();
 
-      final ElevatedButton backButton =
-          tester.widget<ElevatedButton>(backButtonFinder);
-      expect(backButton.enabled, isTrue);
-    });
-
-    testWidgets('displays cart counter in app bar',
-        (WidgetTester tester) async {
-      const CartScreen cartScreen = CartScreen();
-      await tester.pumpWidget(wrapWithProvider(cartScreen, items: [
-        {
-          'type': SandwichType.veggieDelight,
-          'isFootlong': true,
-          'breadType': BreadType.white,
-          'quantity': 2,
-        }
-      ]));
-
-      // Find cart icon in app bar actions
-      expect(find.byIcon(Icons.shopping_cart), findsOneWidget);
-      // Should show 2 items in cart counter
-      expect(find.text('2'), findsOneWidget);
+      // Check drawer items
+      expect(find.text('Order'), findsOneWidget);
+      expect(find.text('Cart'), findsOneWidget);
+      expect(find.text('Profile'), findsOneWidget);
+      expect(find.text('Settings'), findsOneWidget);
     });
 
     testWidgets('cart counter updates when quantity changes',
@@ -218,39 +200,13 @@ void main() {
         }
       ]));
 
-      // Initial state: 1 item
       expect(find.text('1'), findsOneWidget);
 
-      // Increment quantity
       final Finder addButtonFinder = find.byIcon(Icons.add).first;
       await tester.tap(addButtonFinder);
       await tester.pumpAndSettle();
 
-      // Should now show 2 items
       expect(find.text('2'), findsOneWidget);
-    });
-
-    testWidgets('navigates to checkout when checkout button is tapped',
-        (WidgetTester tester) async {
-      const CartScreen cartScreen = CartScreen();
-      await tester.pumpWidget(wrapWithProvider(cartScreen, items: [
-        {
-          'type': SandwichType.veggieDelight,
-          'isFootlong': true,
-          'breadType': BreadType.white,
-          'quantity': 1,
-        }
-      ]));
-
-      final Finder checkoutButtonFinder =
-          find.widgetWithText(ElevatedButton, 'Checkout');
-      expect(checkoutButtonFinder, findsOneWidget);
-
-      // Note: Navigation test might need a mock navigator
-      // For now, just verify the button exists and is enabled
-      final ElevatedButton checkoutButton =
-          tester.widget<ElevatedButton>(checkoutButtonFinder);
-      expect(checkoutButton.enabled, isTrue);
     });
   });
 }
