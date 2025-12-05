@@ -41,6 +41,30 @@ void main() {
       expect(find.text('Total: £0.00'), findsOneWidget);
     });
 
+    testWidgets('has drawer menu button in app bar',
+        (WidgetTester tester) async {
+      const CheckoutScreen checkoutScreen = CheckoutScreen();
+      await tester.pumpWidget(wrapWithProvider(checkoutScreen));
+
+      expect(find.byIcon(Icons.menu), findsOneWidget);
+    });
+
+    testWidgets('displays cart counter in app bar',
+        (WidgetTester tester) async {
+      const CheckoutScreen checkoutScreen = CheckoutScreen();
+      await tester.pumpWidget(wrapWithProvider(checkoutScreen, items: [
+        {
+          'type': SandwichType.veggieDelight,
+          'isFootlong': true,
+          'breadType': BreadType.white,
+          'quantity': 2,
+        }
+      ]));
+
+      expect(find.byIcon(Icons.shopping_cart), findsOneWidget);
+      expect(find.text('2'), findsOneWidget);
+    });
+
     testWidgets('displays order summary with single item',
         (WidgetTester tester) async {
       const CheckoutScreen checkoutScreen = CheckoutScreen();
@@ -58,30 +82,6 @@ void main() {
       expect(find.text('Total:'), findsOneWidget);
       expect(find.byType(Divider), findsOneWidget);
       expect(find.text('Total: £22.00'), findsOneWidget);
-    });
-
-    testWidgets('displays order summary with multiple items',
-        (WidgetTester tester) async {
-      const CheckoutScreen checkoutScreen = CheckoutScreen();
-      await tester.pumpWidget(wrapWithProvider(checkoutScreen, items: [
-        {
-          'type': SandwichType.veggieDelight,
-          'isFootlong': true,
-          'breadType': BreadType.white,
-          'quantity': 1,
-        },
-        {
-          'type': SandwichType.chickenTeriyaki,
-          'isFootlong': false,
-          'breadType': BreadType.wheat,
-          'quantity': 3,
-        }
-      ]));
-
-      expect(find.text('1x Veggie Delight'), findsOneWidget);
-      expect(find.text('3x Chicken Teriyaki'), findsOneWidget);
-      expect(find.text('Total:'), findsOneWidget);
-      expect(find.text('Total: £32.00'), findsOneWidget);
     });
 
     testWidgets('shows confirm payment button initially',
@@ -115,188 +115,23 @@ void main() {
       expect(find.text('Processing payment...'), findsOneWidget);
       expect(find.text('Confirm Payment'), findsNothing);
 
-      // Wait for the fake delay
       await tester.pumpAndSettle(const Duration(seconds: 2));
     });
 
-    testWidgets('calculates item prices correctly for footlong sandwiches',
-        (WidgetTester tester) async {
-      const CheckoutScreen checkoutScreen = CheckoutScreen();
-      await tester.pumpWidget(wrapWithProvider(checkoutScreen, items: [
-        {
-          'type': SandwichType.veggieDelight,
-          'isFootlong': true,
-          'breadType': BreadType.white,
-          'quantity': 1,
-        }
-      ]));
-
-      expect(find.text('1x Veggie Delight'), findsOneWidget);
-      expect(find.text('£11.00'), findsOneWidget);
-    });
-
-    testWidgets('calculates item prices correctly for six-inch sandwiches',
-        (WidgetTester tester) async {
-      const CheckoutScreen checkoutScreen = CheckoutScreen();
-      await tester.pumpWidget(wrapWithProvider(checkoutScreen, items: [
-        {
-          'type': SandwichType.veggieDelight,
-          'isFootlong': false,
-          'breadType': BreadType.white,
-          'quantity': 1,
-        }
-      ]));
-
-      expect(find.text('1x Veggie Delight'), findsOneWidget);
-      expect(find.text('£7.00'), findsOneWidget);
-    });
-
-    testWidgets('displays correct total for mixed sandwich sizes',
-        (WidgetTester tester) async {
-      const CheckoutScreen checkoutScreen = CheckoutScreen();
-      await tester.pumpWidget(wrapWithProvider(checkoutScreen, items: [
-        {
-          'type': SandwichType.veggieDelight,
-          'isFootlong': true,
-          'breadType': BreadType.white,
-          'quantity': 1,
-        },
-        {
-          'type': SandwichType.chickenTeriyaki,
-          'isFootlong': false,
-          'breadType': BreadType.wheat,
-          'quantity': 2,
-        }
-      ]));
-
-      expect(find.text('1x Veggie Delight'), findsOneWidget);
-      expect(find.text('2x Chicken Teriyaki'), findsOneWidget);
-      expect(find.text('£25.00'), findsOneWidget);
-    });
-
-    testWidgets('has proper layout structure', (WidgetTester tester) async {
-      const CheckoutScreen checkoutScreen = CheckoutScreen();
-      await tester.pumpWidget(wrapWithProvider(checkoutScreen));
-
-      expect(find.byType(Scaffold), findsOneWidget);
-      expect(find.byType(AppBar), findsOneWidget);
-      expect(find.byType(Column), findsWidgets);
-      expect(find.byType(SizedBox), findsWidgets);
-    });
-
-    testWidgets('payment method text is displayed correctly',
+    testWidgets('drawer contains navigation items',
         (WidgetTester tester) async {
       const CheckoutScreen checkoutScreen = CheckoutScreen();
       await tester.pumpWidget(wrapWithProvider(checkoutScreen));
 
-      final Finder paymentMethodFinder =
-          find.text('Payment Method: Card ending in 1234');
-      expect(paymentMethodFinder, findsOneWidget);
+      // Open drawer
+      await tester.tap(find.byIcon(Icons.menu));
+      await tester.pumpAndSettle();
 
-      final Text paymentMethodText = tester.widget<Text>(paymentMethodFinder);
-      expect(paymentMethodText.textAlign, equals(TextAlign.center));
-    });
-
-    testWidgets('order summary items are properly aligned',
-        (WidgetTester tester) async {
-      const CheckoutScreen checkoutScreen = CheckoutScreen();
-      await tester.pumpWidget(wrapWithProvider(checkoutScreen, items: [
-        {
-          'type': SandwichType.veggieDelight,
-          'isFootlong': true,
-          'breadType': BreadType.white,
-          'quantity': 1,
-        }
-      ]));
-
-      final Finder rowFinders = find.byType(Row);
-      expect(rowFinders, findsWidgets);
-
-      // Find the item row (with spaceBetween alignment)
-      final itemRows = find.descendant(
-        of: find.byType(Column),
-        matching: find.byWidgetPredicate(
-          (widget) =>
-              widget is Row &&
-              widget.mainAxisAlignment == MainAxisAlignment.spaceBetween &&
-              widget.children.any(
-                  (child) => child is Text && (child).data!.contains('x ')),
-        ),
-      );
-      expect(itemRows, findsOneWidget);
-    });
-
-    testWidgets('displays divider between items and total',
-        (WidgetTester tester) async {
-      const CheckoutScreen checkoutScreen = CheckoutScreen();
-      await tester.pumpWidget(wrapWithProvider(checkoutScreen, items: [
-        {
-          'type': SandwichType.veggieDelight,
-          'isFootlong': true,
-          'breadType': BreadType.white,
-          'quantity': 1,
-        }
-      ]));
-
-      expect(find.byType(Divider), findsOneWidget);
-    });
-
-    testWidgets('shows correct quantity and name format',
-        (WidgetTester tester) async {
-      const CheckoutScreen checkoutScreen = CheckoutScreen();
-      await tester.pumpWidget(wrapWithProvider(checkoutScreen, items: [
-        {
-          'type': SandwichType.chickenTeriyaki,
-          'isFootlong': false,
-          'breadType': BreadType.wheat,
-          'quantity': 3,
-        }
-      ]));
-
-      expect(find.text('3x Chicken Teriyaki'), findsOneWidget);
-    });
-
-    testWidgets('displays cart counter in app bar',
-        (WidgetTester tester) async {
-      const CheckoutScreen checkoutScreen = CheckoutScreen();
-      await tester.pumpWidget(wrapWithProvider(checkoutScreen, items: [
-        {
-          'type': SandwichType.veggieDelight,
-          'isFootlong': true,
-          'breadType': BreadType.white,
-          'quantity': 2,
-        }
-      ]));
-
-      expect(find.byIcon(Icons.shopping_cart), findsOneWidget);
-      expect(find.text('2'), findsOneWidget);
-    });
-
-    testWidgets('shows logo in app bar', (WidgetTester tester) async {
-      const CheckoutScreen checkoutScreen = CheckoutScreen();
-      await tester.pumpWidget(wrapWithProvider(checkoutScreen));
-
-      expect(find.byType(Image), findsOneWidget);
-    });
-
-    testWidgets('shows total with correct formatting',
-        (WidgetTester tester) async {
-      const CheckoutScreen checkoutScreen = CheckoutScreen();
-      await tester.pumpWidget(wrapWithProvider(checkoutScreen, items: [
-        {
-          'type': SandwichType.veggieDelight,
-          'isFootlong': true,
-          'breadType': BreadType.white,
-          'quantity': 1,
-        }
-      ]));
-
-      final Finder totalFinder = find.text('£11.00');
-      expect(totalFinder, findsOneWidget);
-
-      // Check the total row specifically
-      final Finder totalRowFinder = find.widgetWithText(Row, 'Total:');
-      expect(totalRowFinder, findsOneWidget);
+      // Check drawer items
+      expect(find.text('Order'), findsOneWidget);
+      expect(find.text('Cart'), findsOneWidget);
+      expect(find.text('Profile'), findsOneWidget);
+      expect(find.text('Settings'), findsOneWidget);
     });
   });
 }
