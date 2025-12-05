@@ -36,9 +36,12 @@ void main() {
 
       expect(find.text('1'), findsOneWidget);
 
+      // Changed from ElevatedButton to StyledButton
       expect(
           find.widgetWithText(ElevatedButton, 'Add to Cart'), findsOneWidget);
       expect(find.widgetWithText(ElevatedButton, 'View Cart'), findsOneWidget);
+      expect(find.widgetWithText(ElevatedButton, 'Profile'), findsOneWidget);
+      expect(find.widgetWithText(ElevatedButton, 'Settings'), findsOneWidget);
     });
 
     testWidgets('displays cart counter in app bar',
@@ -295,8 +298,167 @@ void main() {
 
       expect(find.text('Cart View'), findsOneWidget);
     });
+
+    testWidgets('navigates to profile when Profile button is tapped',
+        (WidgetTester tester) async {
+      const OrderScreen orderScreen = OrderScreen();
+      await tester.pumpWidget(wrapWithProvider(orderScreen));
+
+      final Finder profileButtonFinder =
+          find.widgetWithText(ElevatedButton, 'Profile');
+      expect(profileButtonFinder, findsOneWidget);
+
+      await tester.ensureVisible(profileButtonFinder);
+      await tester.pumpAndSettle();
+      await tester.tap(profileButtonFinder);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Profile'), findsOneWidget);
+    });
+
+    testWidgets('navigates to settings when Settings button is tapped',
+        (WidgetTester tester) async {
+      const OrderScreen orderScreen = OrderScreen();
+      await tester.pumpWidget(wrapWithProvider(orderScreen));
+
+      final Finder settingsButtonFinder =
+          find.widgetWithText(ElevatedButton, 'Settings');
+      expect(settingsButtonFinder, findsOneWidget);
+
+      await tester.ensureVisible(settingsButtonFinder);
+      await tester.pumpAndSettle();
+      await tester.tap(settingsButtonFinder);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Settings'), findsOneWidget);
+    });
+
+    testWidgets('StyledButton has correct styling properties',
+        (WidgetTester tester) async {
+      const OrderScreen orderScreen = OrderScreen();
+      await tester.pumpWidget(wrapWithProvider(orderScreen));
+
+      final Finder addToCartButtonFinder =
+          find.widgetWithText(ElevatedButton, 'Add to Cart');
+      final ElevatedButton button =
+          tester.widget<ElevatedButton>(addToCartButtonFinder);
+
+      // Check that it's an ElevatedButton (StyledButton extends ElevatedButton)
+      expect(button, isA<ElevatedButton>());
+
+      // Check button style
+      expect(button.style?.backgroundColor?.resolve({}), equals(Colors.green));
+      expect(button.style?.foregroundColor?.resolve({}), equals(Colors.white));
+
+      // Check button has icon and text as children
+      expect(
+          find.descendant(
+            of: addToCartButtonFinder,
+            matching: find.byIcon(Icons.add_shopping_cart),
+          ),
+          findsOneWidget);
+    });
+
+    testWidgets('Settings button has correct styling',
+        (WidgetTester tester) async {
+      const OrderScreen orderScreen = OrderScreen();
+      await tester.pumpWidget(wrapWithProvider(orderScreen));
+
+      final Finder settingsButtonFinder =
+          find.widgetWithText(ElevatedButton, 'Settings');
+      final ElevatedButton button =
+          tester.widget<ElevatedButton>(settingsButtonFinder);
+
+      // Check button color
+      expect(button.style?.backgroundColor?.resolve({}), equals(Colors.grey));
+
+      // Check button has settings icon
+      expect(
+          find.descendant(
+            of: settingsButtonFinder,
+            matching: find.byIcon(Icons.settings),
+          ),
+          findsOneWidget);
+    });
+
+    testWidgets('shows welcome message after returning from profile',
+        (WidgetTester tester) async {
+      const OrderScreen orderScreen = OrderScreen();
+      await tester.pumpWidget(wrapWithProvider(orderScreen));
+
+      // Navigate to profile
+      final Finder profileButtonFinder =
+          find.widgetWithText(ElevatedButton, 'Profile');
+      await tester.ensureVisible(profileButtonFinder);
+      await tester.pumpAndSettle();
+      await tester.tap(profileButtonFinder);
+      await tester.pumpAndSettle();
+
+      // Fill in profile details
+      final Finder nameFieldFinder =
+          find.widgetWithText(TextField, 'Your Name');
+      final Finder locationFieldFinder =
+          find.widgetWithText(TextField, 'Preferred Location');
+      final Finder saveButtonFinder = find.text('Save Profile');
+
+      await tester.enterText(nameFieldFinder, 'John Doe');
+      await tester.enterText(locationFieldFinder, 'London');
+      await tester.tap(saveButtonFinder);
+      await tester.pumpAndSettle();
+
+      // Should show welcome message
+      expect(
+          find.text('Welcome, John Doe! Ordering from London'), findsOneWidget);
+    });
   });
 
-  // Note: Removed the StyledButton group since StyledButton is now just an ElevatedButton
-  // If you want to test the custom button appearance, you can create separate tests
+  group('StyledButton Widget Tests', () {
+    testWidgets('StyledButton renders correctly when enabled',
+        (WidgetTester tester) async {
+      const StyledButton testButton = StyledButton(
+        onPressed: dummyFunction,
+        icon: Icons.add_shopping_cart,
+        label: 'Test Button',
+        backgroundColor: Colors.green,
+      );
+
+      const MaterialApp testApp = MaterialApp(
+        home: Scaffold(body: testButton),
+      );
+
+      await tester.pumpWidget(testApp);
+
+      expect(find.byIcon(Icons.add_shopping_cart), findsOneWidget);
+      expect(find.text('Test Button'), findsOneWidget);
+
+      final Finder elevatedButtonFinder = find.byType(ElevatedButton);
+      final ElevatedButton button =
+          tester.widget<ElevatedButton>(elevatedButtonFinder);
+      expect(button.enabled, isTrue);
+    });
+
+    testWidgets('StyledButton renders correctly when disabled',
+        (WidgetTester tester) async {
+      const StyledButton testButton = StyledButton(
+        onPressed: null,
+        icon: Icons.add_shopping_cart,
+        label: 'Test Button',
+        backgroundColor: Colors.green,
+      );
+
+      const MaterialApp testApp = MaterialApp(
+        home: Scaffold(body: testButton),
+      );
+
+      await tester.pumpWidget(testApp);
+
+      expect(find.byIcon(Icons.add_shopping_cart), findsOneWidget);
+      expect(find.text('Test Button'), findsOneWidget);
+
+      final Finder elevatedButtonFinder = find.byType(ElevatedButton);
+      final ElevatedButton button =
+          tester.widget<ElevatedButton>(elevatedButtonFinder);
+      expect(button.enabled, isFalse);
+    });
+  });
 }
