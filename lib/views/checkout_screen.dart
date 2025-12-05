@@ -4,6 +4,7 @@ import 'package:sandwich_shop/views/app_styles.dart';
 import 'package:sandwich_shop/models/cart.dart';
 import 'package:sandwich_shop/models/sandwich.dart';
 import 'package:sandwich_shop/repositories/pricing_repository.dart';
+import 'package:sandwich_shop/views/common_widgets.dart';
 
 class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({super.key});
@@ -16,6 +17,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   bool _isProcessing = false;
 
   Future<void> _processPayment() async {
+    if (!mounted) return;
+
     setState(() {
       _isProcessing = true;
     });
@@ -23,13 +26,16 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     // A fake delay to simulate payment processing
     await Future.delayed(const Duration(seconds: 2));
 
+    // Check if widget is still mounted
+    if (!mounted) return;
+
     final DateTime currentTime = DateTime.now();
     final int timestamp = currentTime.millisecondsSinceEpoch;
     final String orderId = 'ORD$timestamp';
 
-    // ignore: use_build_context_synchronously
+    // Get cart before async operation
     final Cart cart = Provider.of<Cart>(context, listen: false);
-    final Map orderConfirmation = {
+    final Map<String, dynamic> orderConfirmation = {
       'orderId': orderId,
       'totalAmount': cart.totalPrice,
       'itemCount': cart.countOfItems,
@@ -52,33 +58,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: SizedBox(
-            height: 100,
-            child: Image.asset('assets/images/logo.png'),
-          ),
-        ),
-        title: Text('Checkout', style: heading1),
-        actions: [
-          Consumer<Cart>(
-            builder: (context, cart, child) {
-              return Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.shopping_cart),
-                    const SizedBox(width: 4),
-                    Text('${cart.countOfItems}'),
-                  ],
-                ),
-              );
-            },
-          ),
-        ],
-      ),
+      appBar: const MainAppBar(title: 'Checkout'),
+      drawer: buildAppDrawer(context),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         child: Consumer<Cart>(
