@@ -36,7 +36,10 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      expect(find.text('Settings'), findsOneWidget);
+      expect(
+          find.descendant(
+              of: find.byType(AppBar), matching: find.text('Settings')),
+          findsWidgets);
       expect(find.text('Font Size'), findsOneWidget);
       expect(find.text('Current size: 16px'), findsOneWidget);
       expect(
@@ -92,10 +95,21 @@ void main() {
       await tester.pumpAndSettle();
 
       // Check drawer items
-      expect(find.text('Order'), findsOneWidget);
-      expect(find.text('Cart'), findsOneWidget);
-      expect(find.text('Profile'), findsOneWidget);
-      expect(find.text('Settings'), findsOneWidget);
+      expect(
+          find.descendant(
+              of: find.byType(Drawer), matching: find.text('Order')),
+          findsOneWidget);
+      expect(
+          find.descendant(of: find.byType(Drawer), matching: find.text('Cart')),
+          findsOneWidget);
+      expect(
+          find.descendant(
+              of: find.byType(Drawer), matching: find.text('Profile')),
+          findsOneWidget);
+      expect(
+          find.descendant(
+              of: find.byType(Drawer), matching: find.text('Settings')),
+          findsOneWidget);
     });
 
     testWidgets('loading completes and shows UI', (WidgetTester tester) async {
