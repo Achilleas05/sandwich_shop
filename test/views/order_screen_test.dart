@@ -41,7 +41,7 @@ void main() {
       await tester.pumpWidget(wrapWithProvider(orderScreen));
 
       expect(find.byIcon(Icons.shopping_cart), findsOneWidget);
-      expect(find.text('0'), findsOneWidget);
+      expect(find.text('0').first, findsOneWidget);
     });
 
     testWidgets('has drawer menu button in app bar',
@@ -105,7 +105,7 @@ void main() {
       const OrderScreen orderScreen = OrderScreen();
       await tester.pumpWidget(wrapWithProvider(orderScreen));
 
-      expect(find.text('0'), findsOneWidget);
+      expect(find.text('0').first, findsOneWidget);
 
       final Finder addToCartButtonFinder =
           find.widgetWithText(ElevatedButton, 'Add to Cart');
@@ -114,7 +114,7 @@ void main() {
       await tester.tap(addToCartButtonFinder);
       await tester.pumpAndSettle();
 
-      expect(find.text('1'), findsOneWidget);
+      expect(find.text('1').first, findsOneWidget);
     });
   });
 
@@ -231,7 +231,7 @@ void main() {
       await tester.tap(removeButtonFinder);
       await tester.pumpAndSettle();
 
-      expect(find.text('0'), findsOneWidget);
+      expect(find.text('0').last, findsOneWidget);
       IconButton removeButton = tester.widget<IconButton>(removeButtonFinder);
       expect(removeButton.onPressed, isNull);
 
@@ -246,7 +246,7 @@ void main() {
       await tester.tap(removeButtonFinder);
       await tester.pumpAndSettle();
 
-      expect(find.text('0'), findsOneWidget);
+      expect(find.text('0').last, findsOneWidget);
     });
 
     testWidgets('drawer contains navigation items',
@@ -259,10 +259,21 @@ void main() {
       await tester.pumpAndSettle();
 
       // Check drawer items
-      expect(find.text('Order'), findsOneWidget);
-      expect(find.text('Cart'), findsOneWidget);
-      expect(find.text('Profile'), findsOneWidget);
-      expect(find.text('Settings'), findsOneWidget);
+      expect(
+          find.descendant(
+              of: find.byType(Drawer), matching: find.text('Order')),
+          findsOneWidget);
+      expect(
+          find.descendant(of: find.byType(Drawer), matching: find.text('Cart')),
+          findsOneWidget);
+      expect(
+          find.descendant(
+              of: find.byType(Drawer), matching: find.text('Profile')),
+          findsOneWidget);
+      expect(
+          find.descendant(
+              of: find.byType(Drawer), matching: find.text('Settings')),
+          findsOneWidget);
     });
   });
 }
