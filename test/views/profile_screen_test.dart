@@ -19,7 +19,7 @@ void main() {
       const ProfileScreen profileScreen = ProfileScreen();
       await tester.pumpWidget(wrapWithProvider(profileScreen));
 
-      expect(find.text('Profile'), findsOneWidget);
+      expect(find.text('Profile'), findsNWidgets(2));
       expect(find.text('Enter your details:'), findsOneWidget);
       expect(find.text('Your Name'), findsOneWidget);
       expect(find.text('Preferred Location'), findsOneWidget);
@@ -89,10 +89,21 @@ void main() {
       await tester.pumpAndSettle();
 
       // Check drawer items
-      expect(find.text('Order'), findsOneWidget);
-      expect(find.text('Cart'), findsOneWidget);
-      expect(find.text('Profile'), findsOneWidget);
-      expect(find.text('Settings'), findsOneWidget);
+      expect(
+          find.descendant(
+              of: find.byType(Drawer), matching: find.text('Order')),
+          findsOneWidget);
+      expect(
+          find.descendant(of: find.byType(Drawer), matching: find.text('Cart')),
+          findsOneWidget);
+      expect(
+          find.descendant(
+              of: find.byType(Drawer), matching: find.text('Profile')),
+          findsOneWidget);
+      expect(
+          find.descendant(
+              of: find.byType(Drawer), matching: find.text('Settings')),
+          findsOneWidget);
     });
 
     testWidgets('returns profile data when both fields are filled',
