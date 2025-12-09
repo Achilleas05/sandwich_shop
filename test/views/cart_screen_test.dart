@@ -181,11 +181,18 @@ void main() {
       await tester.tap(find.byIcon(Icons.menu));
       await tester.pumpAndSettle();
 
-      // Check drawer items
-      expect(find.text('Order'), findsOneWidget);
-      expect(find.text('Cart'), findsOneWidget);
-      expect(find.text('Profile'), findsOneWidget);
-      expect(find.text('Settings'), findsOneWidget);
+      // Find the drawer
+      final drawerFinder = find.byType(Drawer);
+
+      // Check drawer items scoped to the drawer
+      expect(find.descendant(of: drawerFinder, matching: find.text('Order')),
+          findsOneWidget);
+      expect(find.descendant(of: drawerFinder, matching: find.text('Cart')),
+          findsOneWidget);
+      expect(find.descendant(of: drawerFinder, matching: find.text('Profile')),
+          findsOneWidget);
+      expect(find.descendant(of: drawerFinder, matching: find.text('Settings')),
+          findsOneWidget);
     });
 
     testWidgets('cart counter updates when quantity changes',
