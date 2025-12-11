@@ -170,4 +170,22 @@ void main() {
       expect(find.textContaining('Order'), findsWidgets);
     });
   });
+  testWidgets('quantity does not go below 1', (WidgetTester tester) async {
+    app.main();
+    await tester.pumpAndSettle();
+
+    // Expect initial quantity 1 somewhere near the quantity section
+    expect(find.text('1'), findsWidgets);
+
+    // Find the minus button near quantity
+    final minusButtons = find.byIcon(Icons.remove);
+    final quantityMinusButton = minusButtons.first;
+
+    // Tap minus; quantity should stay at 1, not go to 0
+    await tester.tap(quantityMinusButton);
+    await tester.pumpAndSettle();
+
+    expect(find.text('1'), findsWidgets);
+    expect(find.text('0'), findsNothing);
+  });
 }
