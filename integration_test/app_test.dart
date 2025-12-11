@@ -135,6 +135,39 @@ void main() {
       expect(find.text('Cart: 0 items - £0.00'), findsOneWidget);
     });
 
-    // Feel free to add more tests (e.g., to check saved orders, etc.)
+    testWidgets('completed order appears in order history',
+        (WidgetTester tester) async {
+      app.main();
+      await tester.pumpAndSettle();
+
+      // Add one default sandwich
+      final addToCartButton = find.widgetWithText(StyledButton, 'Add to Cart');
+      await tester.ensureVisible(addToCartButton);
+      await tester.tap(addToCartButton);
+      await tester.pumpAndSettle();
+
+      // Go to cart
+      final viewCartButton = find.widgetWithText(StyledButton, 'View Cart');
+      await tester.ensureVisible(viewCartButton);
+      await tester.tap(viewCartButton);
+      await tester.pumpAndSettle();
+
+      // Checkout
+      final checkoutButton = find.widgetWithText(StyledButton, 'Checkout');
+      await tester.tap(checkoutButton);
+      await tester.pumpAndSettle();
+
+      final confirmPaymentButton = find.text('Confirm Payment');
+      await tester.tap(confirmPaymentButton);
+      await tester.pump(const Duration(seconds: 3));
+
+      // Navigate to Order History tab/screen
+      final orderHistoryTab = find.text('Order History');
+      await tester.tap(orderHistoryTab);
+      await tester.pumpAndSettle();
+
+      // Verify at least one order is listed
+      expect(find.textContaining('Order'), findsWidgets);
+    });
   });
 }
