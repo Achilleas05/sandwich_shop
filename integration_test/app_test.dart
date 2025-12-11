@@ -219,4 +219,19 @@ void main() {
     // Verify at least one order is listed
     expect(find.textContaining('Order'), findsWidgets);
   });
+  testWidgets('quantity does not go below minimum',
+      (WidgetTester tester) async {
+    app.main();
+    await tester.pumpAndSettle();
+
+    // Tap the minus button near quantity
+    final minusButtons = find.byIcon(Icons.remove);
+    final quantityMinusButton = minusButtons.first;
+
+    await tester.tap(quantityMinusButton);
+    await tester.pumpAndSettle();
+
+    // Edge case: quantity should never be 0
+    expect(find.text('0'), findsNothing);
+  });
 }
